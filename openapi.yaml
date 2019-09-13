@@ -1,237 +1,259 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Example.com
-  termsOfService: 'https://example.com/terms/'
-  contact:
-    email: contact@example.com
-    url: 'http://example.com/contact'
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  x-logo:
-    url: 'https://apis.guru/openapi-template/logo.png'
+  title: Geokodikas
   description: |
-    This is an **example** API to demonstrate features of OpenAPI specification
-    # Introduction
-    This specification is intended to to be a good starting point for describing your API in 
-    [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
-    It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
-    [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
-    [vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).
-
-    # OpenAPI Specification
-    The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which
-    allows both humans and computers to discover and understand the capabilities of the service without access to source
-    code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can 
-    understand and interact with the remote service with a minimal amount of implementation logic. Similar to what
-    interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
+    The HTTP API of [Geokodikas](https://github.com/geokodikas/geokodikas)
 tags:
-  - name: Echo
-    description: Example echo operations
-  - name: User
-    description: Operations about user
+  - name: OSM Entities
+    description: Endpoints to access OSM entities
+  - name: Geocoding
+    description: Endpoints to perform geocoding
 servers:
-  - url: 'http://example.com/api/v1'
-  - url: 'https://example.com/api/v1'
+  - url: 'http://localhost:8080/api/v1'
 paths:
-  '/users/{username}':
-    parameters:
-      - name: pretty_print
-        in: query
-        description: Pretty print response
-        schema:
-          type: boolean
+  '/address/{id}':
     get:
       tags:
-        - User
-      summary: Get user by user name
+        - OSM Entities
+      summary: Get information about an Address by its id
       description: |
-        Some description of the operation. 
-        You can use `markdown` here.
-      operationId: getUserByName
+        In Geokodikas an Address is a Way or Node with either `Address` or `Venue` as layer.
+        The layer `Venue` is used for entities with a `name` tag.
+      operationId: getAddressById
       parameters:
-        - name: username
+        - name: id
           in: path
-          description: The name that needs to be fetched
+          description: Id of the Address.
           required: true
           schema:
-            type: string
-        - name: with_email
-          in: query
-          description: Filter users without email
-          schema:
-            type: boolean
-      security:
-        - main_auth:
-            - 'read:users'
-        - api_key: []
+            type: integer
+        - $ref: '#/components/parameters/formatting'
+        - $ref: '#/components/parameters/accept'
+        - $ref: '#/components/parameters/accept-language'
       responses:
         '200':
           description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              example:
-                username: user1
-                email: user@example.com
-        '403':
-          description: Forbidden
         '404':
-          description: User not found
-    put:
+          description: Address not found
+  '/osm_entity/way/{id}':
+    get:
       tags:
-        - User
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
+        - OSM Entities
+      summary: Get information about a Way by its id
+      operationId: getWayById
       parameters:
-        - name: username
+        - name: id
           in: path
-          description: The name that needs to be updated
+          description: |
+            Id(s) of the Way
+
+            Example: `8061263`
+
+            Example: `8061263,8061267`
           required: true
           schema:
-            type: string
-      security:
-        - main_auth:
-            - 'write:users'
+            type: array
+            items:
+              type: integer
+        - $ref: '#/components/parameters/formatting'
+        - $ref: '#/components/parameters/accept'
+        - $ref: '#/components/parameters/accept-language'
       responses:
         '200':
-          description: OK
-        '400':
-          description: Invalid user supplied
+          description: Success
         '404':
-          description: User not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-        description: Updated user object
-        required: true
-  /echo:
-    post:
+          description: Way not found
+  '/osm_entity/node/{id}':
+    get:
       tags:
-        - Echo
-      summary: Echo test
-      description: Receive the exact message you've sent
-      operationId: echo
-      security:
-        - api_key: []
-        - basic_auth: []
+        - OSM Entities
+      summary: Get information about a Node by its id
+      operationId: getNodeById
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Id(s) of the Node
+
+            Example: `1422600738`
+
+            Example: `1422600738,1889049559`
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+        - $ref: '#/components/parameters/formatting'
+        - $ref: '#/components/parameters/accept'
+        - $ref: '#/components/parameters/accept-language'
       responses:
         '200':
-          description: OK
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              $ref: '#/components/headers/ExpiresAfter'
-          content:
-            application/json:
-              schema:
-                type: string
-              examples:
-                response:
-                  value: Hello world!
-            application/xml:
-              schema:
-                type: string
-            text/csv:
-              schema:
-                type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
+          description: Success
+        '404':
+          description: Node not found
+  '/osm_entity/relation/{id}':
+    get:
+      tags:
+        - OSM Entities
+      summary: Get information about a Relation by its id
+      operationId: getRelationById
+      parameters:
+        - name: id
+          in: path
+          description: |
+            Id(s) of the Relation
+
+            Example: `52411`
+
+            Example: `53134,90348`
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+        - $ref: '#/components/parameters/formatting'
+        - $ref: '#/components/parameters/accept'
+        - $ref: '#/components/parameters/accept-language'
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: Relation not found
+  /reverse:
+    get:
+      tags:
+        - Geocoding
+      summary: Perform reverse geocoding
+      operationId: rerverseGeocoding
+      parameters:
+        - name: lon
+          in: query
+          description: Longitude
+          required: true
+          schema:
+            type: number
+            format: double
+          example: 51.332267409713985
+        - name: lat
+          in: query
+          description: Latitude
+          required: true
+          schema:
+            type: number
+            format: double
+          example: 4.521034955978394
+        - name: limitNumeric
+          in: query
+          description: The number of results that maximally may be returned.
+          required: false
+          schema:
+            type: integer
+            default: 5
+        - name: limitRadius
+          in: query
+          description: The radius in meters in which to search for objects.
+          required: false
+          schema:
+            type: integer
+            default: 200
+        - name: limitLayers
+          in: query
+          description: |
+            If specified only objects with the specified layer will be returned. Multiple values must be separated by a comma.
+            Note that depending on which layers are specified different types of entities may be returned.
+            For each such type, a query is made to a specific database table.
+            Therefore, specifying more layers than required may slow down the request.
+
+             - VirtualTrafficFlow, can be of type Node or Way. E.g. speed camera's.
+             - PhysicalTrafficFlow, can only be of type Node. Eg. bumps.
+             - Junction, can be of type Node or Way.
+             - Link, can only be of type Way. This are ways connecting highways and non-highways.
+             - Street, can only be of type Way.
+             - Address, can only be of type Address.
+             - Venue, can only be of type Address. This are addresses with a name.
+             - Neighbourhood, can only be of type Relation. This are sub-municipalities, districts etc.
+             - LocalAdmin, can only be of type Relation. This are cities and municipalities.
+             - County, can only be of type Relation. This are counties and provinces.
+             - MacroRegion, can only be of type Relation.
+             - Country, can only of type Relation.
+          required: false
+          schema:
+            type: array
+            default:
+              - Address
+              - Venue
+              - Street
+              - Link
+            items:
               type: string
-              example: Hello world!
-          application/xml:
-            schema:
+              enum:
+                - VirtualTrafficFlow
+                - PhysicalTrafficFlow
+                - Junction
+                - Link
+                - Venue
+                - Address
+                - Street
+                - Neighbourhood
+                - LocalAdmin
+                - County
+                - MacroRegion
+                - Country
+          example:
+            - Address
+            - Venue
+        - name: includeTags
+          in: query
+          description: Only has influence on the JSON response. The values of the specified tags will be included in the response. If the object has no tag the value will be `null`.
+          required: false
+          schema:
+            type: array
+            items:
               type: string
-              example: Hello world!
-        description: Echo payload
-        required: true
-      x-code-samples:
-        - lang: 'C#'
-          source: |
-            API.v1.Echo echo = new API.v1.Echo();
-            echo.message = "Hello World!");
-            EchoResponse response = echo.post();
-            if (response.statusCode == HttpStatusCode.Created)
-            {
-              // Success
-            }
-            else
-            {
-              // Something wrong -- check response for errors
-              Console.WriteLine(response.getRawResponse());
-            }
-        - lang: PHP
-          source: |
-            $form = new \API\Entities\Echo();
-            $form->setMessage("Hello World!");
-            try {
-                $pet = $client->echo()->post($form);
-            } catch (UnprocessableEntityException $e) {
-                var_dump($e->getErrors());
-            }
+            default: null
+          example:
+            - maxspeed
+            - ref
+        - name: includeGeometry
+          in: query
+          description: 'Only has influence on the JSON response, because the geometry is required for rendering in the HTML view. If `false` the geometry of the returned objects will not be fetched from the database and not included in the geojson. The `closest-point` feature will also not be included in the response.'
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - $ref: '#/components/parameters/formatting'
+        - $ref: '#/components/parameters/accept'
+        - $ref: '#/components/parameters/accept-language'
+      responses:
+        '200':
+          description: Success
 components:
-  schemas:
-    Email:
-      description: User email address
-      type: string
-      format: test
-      example: john.smith@example.com
-    User:
-      type: object
-      properties:
-        username:
-          description: User supplied username
-          type: string
-          minLength: 4
-          example: John78
-        firstName:
-          description: User first name
-          type: string
-          minLength: 1
-          example: John
-        lastName:
-          description: User last name
-          type: string
-          minLength: 1
-          example: Smith
-        email:
-          $ref: '#/components/schemas/Email'
-  headers:
-    ExpiresAfter:
-      description: date in UTC when token expires
+  parameters:
+    formatting:
+      name: formatting
+      in: query
+      description: Whether to return response as JSON or HTML. This parameter takes precedence over the Accept Header.
+      required: false
       schema:
         type: string
-        format: date-time
-  securitySchemes:
-    main_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: 'http://example.com/api/oauth/dialog'
-          scopes:
-            'read:users': read users info
-            'write:users': modify or remove users
-    api_key:
-      type: apiKey
+        enum:
+          - html
+          - json
+    accept:
+      name: Accept
       in: header
-      name: api_key
-    basic_auth:
-      type: http
-      scheme: basic
+      description: Whether to return response as JSON or HTML. The query parameter takes precedence over this header.
+      required: false
+      schema:
+        type: string
+        enum:
+          - html
+          - json
+    accept-language:
+      name: Accept-Language
+      in: header
+      description: 'Specifies the preferred language(s) for the response. Only the language code is taken into account, i.e. `nl-BE` and `nl-NL` are both processed as `nl`.'
+      required: false
+      schema:
+        type: string

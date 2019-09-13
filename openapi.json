@@ -2,319 +2,350 @@
   "openapi": "3.0.0",
   "info": {
     "version": "1.0.0",
-    "title": "Example.com",
-    "termsOfService": "https://example.com/terms/",
-    "contact": {
-      "email": "contact@example.com",
-      "url": "http://example.com/contact"
-    },
-    "license": {
-      "name": "Apache 2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-    },
-    "x-logo": {
-      "url": "https://apis.guru/openapi-template/logo.png"
-    },
-    "description": "This is an **example** API to demonstrate features of OpenAPI specification\n# Introduction\nThis specification is intended to to be a good starting point for describing your API in \n[OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).\nIt also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and \n[ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few \n[vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).\n\n# OpenAPI Specification\nThe goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which\nallows both humans and computers to discover and understand the capabilities of the service without access to source\ncode, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can \nunderstand and interact with the remote service with a minimal amount of implementation logic. Similar to what\ninterfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.\n"
-  },
-  "externalDocs": {
-    "description": "Find out how to create Github repo for your OpenAPI spec.",
-    "url": "https://github.com/Rebilly/generator-openapi-repo"
+    "title": "Geokodikas",
+    "description": "The HTTP API of [Geokodikas](https://github.com/geokodikas/geokodikas)\n"
   },
   "tags": [
     {
-      "name": "Echo",
-      "description": "Example echo operations"
+      "name": "OSM Entities",
+      "description": "Endpoints to access OSM entities"
     },
     {
-      "name": "User",
-      "description": "Operations about user"
+      "name": "Geocoding",
+      "description": "Endpoints to perform geocoding"
     }
   ],
   "servers": [
     {
-      "url": "http://example.com/api/v1"
-    },
-    {
-      "url": "https://example.com/api/v1"
+      "url": "http://localhost:8080/api/v1"
     }
   ],
   "paths": {
-    "/users/{username}": {
-      "parameters": [
-        {
-          "name": "pretty_print",
-          "in": "query",
-          "description": "Pretty print response",
-          "schema": {
-            "type": "boolean"
-          }
-        }
-      ],
+    "/address/{id}": {
       "get": {
         "tags": [
-          "User"
+          "OSM Entities"
         ],
-        "summary": "Get user by user name",
-        "description": "Some description of the operation. \nYou can use `markdown` here.\n",
-        "operationId": "getUserByName",
+        "summary": "Get information about an Address by its id",
+        "description": "In Geokodikas an Address is a Way or Node with either `Address` or `Venue` as layer.\nThe layer `Venue` is used for entities with a `name` tag.\n",
+        "operationId": "getAddressById",
         "parameters": [
           {
-            "name": "username",
+            "name": "id",
             "in": "path",
-            "description": "The name that needs to be fetched",
+            "description": "Id of the Address.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           },
           {
-            "name": "with_email",
-            "in": "query",
-            "description": "Filter users without email",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "security": [
-          {
-            "main_auth": [
-              "read:users"
-            ]
+            "$ref": "#/components/parameters/formatting"
           },
           {
-            "api_key": []
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/accept-language"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                },
-                "example": {
-                  "username": "user1",
-                  "email": "user@example.com"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden"
+            "description": "Success"
           },
           "404": {
-            "description": "User not found"
+            "description": "Address not found"
           }
-        }
-      },
-      "put": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Updated user",
-        "description": "This can only be done by the logged in user.",
-        "operationId": "updateUser",
-        "parameters": [
-          {
-            "name": "username",
-            "in": "path",
-            "description": "The name that needs to be updated",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "security": [
-          {
-            "main_auth": [
-              "write:users"
-            ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Invalid user supplied"
-          },
-          "404": {
-            "description": "User not found"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/User"
-              }
-            },
-            "application/xml": {
-              "schema": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          },
-          "description": "Updated user object",
-          "required": true
         }
       }
     },
-    "/echo": {
-      "post": {
+    "/osm_entity/way/{id}": {
+      "get": {
         "tags": [
-          "Echo"
+          "OSM Entities"
         ],
-        "summary": "Echo test",
-        "description": "Receive the exact message you've sent",
-        "operationId": "echo",
-        "security": [
+        "summary": "Get information about a Way by its id",
+        "operationId": "getWayById",
+        "parameters": [
           {
-            "api_key": []
+            "name": "id",
+            "in": "path",
+            "description": "Id(s) of the Way\n\nExample: `8061263`\n\nExample: `8061263,8061267`\n",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
           },
           {
-            "basic_auth": []
+            "$ref": "#/components/parameters/formatting"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/accept-language"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "headers": {
-              "X-Rate-Limit": {
-                "description": "calls per hour allowed by the user",
-                "schema": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              },
-              "X-Expires-After": {
-                "$ref": "#/components/headers/ExpiresAfter"
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                },
-                "examples": {
-                  "response": {
-                    "value": "Hello world!"
-                  }
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/csv": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "Success"
+          },
+          "404": {
+            "description": "Way not found"
           }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "example": "Hello world!"
-              }
-            },
-            "application/xml": {
-              "schema": {
-                "type": "string",
-                "example": "Hello world!"
+        }
+      }
+    },
+    "/osm_entity/node/{id}": {
+      "get": {
+        "tags": [
+          "OSM Entities"
+        ],
+        "summary": "Get information about a Node by its id",
+        "operationId": "getNodeById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id(s) of the Node\n\nExample: `1422600738`\n\nExample: `1422600738,1889049559`\n",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
               }
             }
           },
-          "description": "Echo payload",
-          "required": true
-        },
-        "x-code-samples": [
           {
-            "lang": "C#",
-            "source": "API.v1.Echo echo = new API.v1.Echo();\necho.message = \"Hello World!\");\nEchoResponse response = echo.post();\nif (response.statusCode == HttpStatusCode.Created)\n{\n  // Success\n}\nelse\n{\n  // Something wrong -- check response for errors\n  Console.WriteLine(response.getRawResponse());\n}\n"
+            "$ref": "#/components/parameters/formatting"
           },
           {
-            "lang": "PHP",
-            "source": "$form = new \\API\\Entities\\Echo();\n$form->setMessage(\"Hello World!\");\ntry {\n    $pet = $client->echo()->post($form);\n} catch (UnprocessableEntityException $e) {\n    var_dump($e->getErrors());\n}\n"
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/accept-language"
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "404": {
+            "description": "Node not found"
+          }
+        }
+      }
+    },
+    "/osm_entity/relation/{id}": {
+      "get": {
+        "tags": [
+          "OSM Entities"
+        ],
+        "summary": "Get information about a Relation by its id",
+        "operationId": "getRelationById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id(s) of the Relation\n\nExample: `52411`\n\nExample: `53134,90348`\n",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/formatting"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/accept-language"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "404": {
+            "description": "Relation not found"
+          }
+        }
+      }
+    },
+    "/reverse": {
+      "get": {
+        "tags": [
+          "Geocoding"
+        ],
+        "summary": "Perform reverse geocoding",
+        "operationId": "rerverseGeocoding",
+        "parameters": [
+          {
+            "name": "lon",
+            "in": "query",
+            "description": "Longitude",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 51.332267409713985
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "example": 4.521034955978394
+          },
+          {
+            "name": "limitNumeric",
+            "in": "query",
+            "description": "The number of results that maximally may be returned.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 5
+            }
+          },
+          {
+            "name": "limitRadius",
+            "in": "query",
+            "description": "The radius in meters in which to search for objects.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 200
+            }
+          },
+          {
+            "name": "limitLayers",
+            "in": "query",
+            "description": "If specified only objects with the specified layer will be returned. Multiple values must be separated by a comma.\nNote that depending on which layers are specified different types of entities may be returned.\nFor each such type, a query is made to a specific database table.\nTherefore, specifying more layers than required may slow down the request.\n\n - VirtualTrafficFlow, can be of type Node or Way. E.g. speed camera's.\n - PhysicalTrafficFlow, can only be of type Node. Eg. bumps.\n - Junction, can be of type Node or Way.\n - Link, can only be of type Way. This are ways connecting highways and non-highways.\n - Street, can only be of type Way.\n - Address, can only be of type Address.\n - Venue, can only be of type Address. This are addresses with a name.\n - Neighbourhood, can only be of type Relation. This are sub-municipalities, districts etc.\n - LocalAdmin, can only be of type Relation. This are cities and municipalities.\n - County, can only be of type Relation. This are counties and provinces.\n - MacroRegion, can only be of type Relation.\n - Country, can only of type Relation.\n",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "default": [
+                "Address",
+                "Venue",
+                "Street",
+                "Link"
+              ],
+              "items": {
+                "type": "string",
+                "enum": [
+                  "VirtualTrafficFlow",
+                  "PhysicalTrafficFlow",
+                  "Junction",
+                  "Link",
+                  "Venue",
+                  "Address",
+                  "Street",
+                  "Neighbourhood",
+                  "LocalAdmin",
+                  "County",
+                  "MacroRegion",
+                  "Country"
+                ]
+              }
+            },
+            "example": [
+              "Address",
+              "Venue"
+            ]
+          },
+          {
+            "name": "includeTags",
+            "in": "query",
+            "description": "Only has influence on the JSON response. The values of the specified tags will be included in the response. If the object has no tag the value will be `null`.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": null
+            },
+            "example": [
+              "maxspeed",
+              "ref"
+            ]
+          },
+          {
+            "name": "includeGeometry",
+            "in": "query",
+            "description": "Only has influence on the JSON response, because the geometry is required for rendering in the HTML view. If `false` the geometry of the returned objects will not be fetched from the database and not included in the geojson. The `closest-point` feature will also not be included in the response.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "$ref": "#/components/parameters/formatting"
+          },
+          {
+            "$ref": "#/components/parameters/accept"
+          },
+          {
+            "$ref": "#/components/parameters/accept-language"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
       }
     }
   },
   "components": {
-    "schemas": {
-      "Email": {
-        "description": "User email address",
-        "type": "string",
-        "format": "test",
-        "example": "john.smith@example.com"
-      },
-      "User": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "description": "User supplied username",
-            "type": "string",
-            "minLength": 4,
-            "example": "John78"
-          },
-          "firstName": {
-            "description": "User first name",
-            "type": "string",
-            "minLength": 1,
-            "example": "John"
-          },
-          "lastName": {
-            "description": "User last name",
-            "type": "string",
-            "minLength": 1,
-            "example": "Smith"
-          },
-          "email": {
-            "$ref": "#/components/schemas/Email"
-          }
-        }
-      }
-    },
-    "headers": {
-      "ExpiresAfter": {
-        "description": "date in UTC when token expires",
+    "parameters": {
+      "formatting": {
+        "name": "formatting",
+        "in": "query",
+        "description": "Whether to return response as JSON or HTML. This parameter takes precedence over the Accept Header.",
+        "required": false,
         "schema": {
           "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "securitySchemes": {
-      "main_auth": {
-        "type": "oauth2",
-        "flows": {
-          "implicit": {
-            "authorizationUrl": "http://example.com/api/oauth/dialog",
-            "scopes": {
-              "read:users": "read users info",
-              "write:users": "modify or remove users"
-            }
-          }
+          "enum": [
+            "html",
+            "json"
+          ]
         }
       },
-      "api_key": {
-        "type": "apiKey",
+      "accept": {
+        "name": "Accept",
         "in": "header",
-        "name": "api_key"
+        "description": "Whether to return response as JSON or HTML. The query parameter takes precedence over this header.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "html",
+            "json"
+          ]
+        }
       },
-      "basic_auth": {
-        "type": "http",
-        "scheme": "basic"
+      "accept-language": {
+        "name": "Accept-Language",
+        "in": "header",
+        "description": "Specifies the preferred language(s) for the response. Only the language code is taken into account, i.e. `nl-BE` and `nl-NL` are both processed as `nl`.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
       }
     }
   }
